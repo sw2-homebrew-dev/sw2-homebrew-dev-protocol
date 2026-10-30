@@ -22,7 +22,8 @@ const read = file => { try { return fs.readFileSync(file, 'utf8'); } catch { ret
 const meta = JSON.parse(read(path.join(candidate, 'CANDIDATE.json')) || '{}');
 
 let sdkCommit = 'unknown';
-try { sdkCommit = execFileSync('git', ['-C', sdk, 'describe', '--always', '--dirty'], {encoding: 'utf8'}).trim(); }
+try { sdkCommit = execFileSync('git', ['-C', sdk, 'describe', '--always', '--dirty'],
+  {encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore']}).trim(); }
 catch { const b = read(path.join(sdk, 'BUNDLE.json')); if (b) sdkCommit = JSON.parse(b).commit + ' (bundle)'; }
 
 const lines = read(path.join(evidence, 'session.jsonl')).split('\n').filter(Boolean)

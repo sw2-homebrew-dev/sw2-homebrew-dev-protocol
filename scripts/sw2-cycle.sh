@@ -121,7 +121,14 @@ log "launch $ID (watchdog ${SECONDS_LIMIT}s): hbl-start $*"
 STARTED=$(date +%s)
 "$HOST" "$@" >> "$LOG" 2>&1 &
 PID=$!
-( sleep "$SECONDS_LIMIT"; kill -TERM "$PID" 2>/dev/null && echo timeout > "$EVIDENCE/.timeout" ) &
+# The watchdog must not hold our stdout open, and must take its sleep with it
+# when cancelled; otherwise a piped cycle waits out SW2_SECONDS after the end.
+(
+  trap 'kill "$nap" 2>/dev/null; exit 0' TERM
+  sleep "$SECONDS_LIMIT" & nap=$!
+  wait "$nap"
+  kill -TERM "$PID" 2>/dev/null && echo timeout > "$EVIDENCE/.timeout"
+) </dev/null >/dev/null 2>&1 &
 WATCHDOG=$!
 set +e
 wait "$PID"; HOST_EXIT=$?
