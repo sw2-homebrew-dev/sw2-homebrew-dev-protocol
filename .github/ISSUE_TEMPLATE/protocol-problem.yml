@@ -1,0 +1,11 @@
+name: Protocol or script problem
+description: A cycle script misbehaved or the runbook is unclear
+body:
+  - type: dropdown
+    id: host
+    attributes: {label: Session host, options: [Linux ns2jb, macOS mac2jb, mock]}
+    validations: {required: true}
+  - type: textarea
+    id: what
+    attributes: {label: What happened, description: "Include result.json and a short excerpt of cycle.log; no addresses or personal paths."}
+    validations: {required: true}
